@@ -10,7 +10,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 
-
 # SQLite database URL
 DATABASE_URL = "sqlite:///./todo_app.db"
 
@@ -21,5 +20,10 @@ Base = declarative_base()
 
 # test connection
 Base.metadata.create_all(bind=engine)
+
+
+
+
+
 
 
