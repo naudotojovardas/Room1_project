@@ -1,0 +1,2 @@
+# run the server: uvicorn main:app --reload
+# run test: pytest test_main.py
