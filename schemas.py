@@ -27,8 +27,12 @@ class TodoUpdate(BaseModel):
     status: Optional[bool] = None
 
 # Response model for TODOs
-class TodoResponse(TodoCreate):
+class TodoResponse(BaseModel):
     id: int
+    name: str
+    description: str
+    due_date: datetime
+    status: bool
 
     class Config:
         orm_mode = True
