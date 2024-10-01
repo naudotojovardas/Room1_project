@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO List</title>
+</head>
+<body>
+    <h1>Your TODOs</h1>
+    <form method="post" action="/todos">
+        <label for="user_id">Select User:</label>
+        <select name="user_id" required>
+            <option value="">Choose a user</option>
+            {% for user in users %}
+                <option value="{{ user.id }}">{{ user.email }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="name">Name:</label>
+        <input type="text" name="name" required placeholder="Enter task name">
+        <br>
+        <label for="description">Description:</label>
+        <input type="text" name="description" placeholder="Enter task description">
+        <br>
+        <label for="due_date">Due Date:</label>
+        <input type="datetime-local" name="due_date" required>
+        <br>
+        <button type="submit">Add TODO</button>
+    </form>
+    <hr>
+    <h2>Existing TODOs</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Due Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for todo in todos %}
+                <tr>
+                    <td>{{ todo.name }}</td>
+                    <td>{{ todo.description }}</td>
+                    <td>{{ todo.due_date }}</td>
+                    <td>{{ todo.status }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
