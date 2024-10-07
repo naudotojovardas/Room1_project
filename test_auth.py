@@ -12,8 +12,6 @@ import tempfile
 os.environ["DISABLE_AUTH"] = "1"
 
 
-
-
 # Create a temporary test database file
 db_file = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{db_file.name}"
@@ -38,7 +36,7 @@ client = TestClient(app)
 def reset_tables():
     print(f"Resetting database tables for: {SQLALCHEMY_DATABASE_URL}")
 
-    # Drop all tables and recreate them
+    # Drop all tables and recreate them. we need it because we are using the same database for all tests
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
