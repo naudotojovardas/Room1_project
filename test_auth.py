@@ -10,6 +10,8 @@ import tempfile
 
 # --disable-warnings
 os.environ["DISABLE_AUTH"] = "1"
+# another way to disable the warnings
+# pytest -p no:warnings
 
 
 # Create a temporary test database file
@@ -103,6 +105,7 @@ def test_login(unique_user):
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid username or password"
+
 
 
 def test_create_todo_after_login(unique_user):
@@ -304,4 +307,4 @@ def test_delete_todo_by_id(unique_user):
 
 
 
-# run test: pytest test_auth.py or  pytest -v
+# run test: pytest test_auth.py or  'pytest -p no:warnings'. You need to be activated the virtual environment
