@@ -1,20 +1,11 @@
-# todo.py
 from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import datetime
-from database import SessionLocal, Todo
+from database import get_db, Todo  # Import get_db from database.py
 from auth import get_current_user, User  # Import the user retrieval function
 
 router = APIRouter()
-
-# Dependency to get the DB session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 class TodoCreate(BaseModel):
     name: str
@@ -71,6 +62,3 @@ def delete_todo(todo_id: int, db: Session = Depends(get_db), user: User = Depend
 def get_all_todos(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     todos = db.query(Todo).filter(Todo.owner_id == user.id).all()
     return todos
-
-# Include the router in the main FastAPI app
-# This should be done in the main.py file.

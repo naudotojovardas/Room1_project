@@ -31,5 +31,8 @@ add_auth_routes(app)
 app.include_router(todo_router, prefix="/todos")
 
 if __name__ == "__main__":
+    init_db()  # Only run this when starting the main application server
     import uvicorn
     uvicorn.run(app, host="localhost", port=8000)
+
+    print("Initializing database...")

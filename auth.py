@@ -1,4 +1,6 @@
 # auth.py
+import logging
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -53,7 +55,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "sub": data.get("sub")})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -76,13 +78,30 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_exception
     return user
 
+
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+
+    class Config:
+        from_attributes = True  # Replacing orm_mode
+
+
 # Define routes directly
 def add_auth_routes(app):
-    @app.post("/register", response_model=UserInDB)
+    @app.post("/register", response_model=UserResponse)
     def register(user: UserCreate, db: Session = Depends(get_db)):
+        print(f"Received registration data: {user}")
+
+        # Debug: Check all users currently in the database
+        all_users = db.query(User).all()
+        print(f"Current users in the database: {[u.username for u in all_users]}")
+
         db_user = db.query(User).filter(User.username == user.username).first()
         if db_user:
             raise HTTPException(status_code=400, detail="Username already registered")
+
         hashed_password = hash_password(user.password)
         new_user = User(username=user.username, password_hash=hashed_password)
         db.add(new_user)
@@ -93,7 +112,11 @@ def add_auth_routes(app):
     @app.post("/token", response_model=Token)
     def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
         db_user = db.query(User).filter(User.username == form_data.username).first()
-        if not db_user or not verify_password(form_data.password, db_user.password_hash):
+        if not db_user:
+            logging.info(f"User not found: {form_data.username}")
+            raise HTTPException(status_code=401, detail="Invalid username or password")
+        if not verify_password(form_data.password, db_user.password_hash):
+            logging.info(f"Invalid password for user: {form_data.username}")
             raise HTTPException(status_code=401, detail="Invalid username or password")
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
