@@ -7,6 +7,8 @@ from auth import get_current_user, User  # Import the user retrieval function
 
 router = APIRouter()
 
+
+
 class TodoCreate(BaseModel):
     name: str
     description: str
@@ -62,3 +64,16 @@ def delete_todo(todo_id: int, db: Session = Depends(get_db), user: User = Depend
 def get_all_todos(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     todos = db.query(Todo).filter(Todo.owner_id == user.id).all()
     return todos
+
+# lets change the status of the todo
+@router.put("/{todo_id}/toggle_status") # toggle_status is the endpoint,
+def toggle_status(todo_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    todo = db.query(Todo).filter(Todo.id == todo_id, Todo.owner_id == user.id).first()
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    todo.status = not todo.status
+    print('this is the status in the change', todo.status)
+    db.commit()
+    db.refresh(todo)
+    return todo
+

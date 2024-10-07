@@ -5,11 +5,21 @@ from fastapi.staticfiles import StaticFiles
 from database import init_db
 from todo import router as todo_router
 from auth import add_auth_routes
-
+from fastapi.middleware.cors import CORSMiddleware
 # Initialize the database
 init_db()
 
 app = FastAPI()
+
+# Fix the CORS issue
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # You might want to restrict this to specific domains
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.include_router(todo_router, prefix="/todos", tags=["todos"])
 
 # Serve static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -27,8 +37,7 @@ async def favicon():
 # Add authentication routes
 add_auth_routes(app)
 
-# Include the TODO routes with a prefix
-app.include_router(todo_router, prefix="/todos")
+
 
 if __name__ == "__main__":
     init_db()  # Only run this when starting the main application server
